@@ -30,6 +30,7 @@
 #include "dispatch.h"
 
 #include <string.h>
+#include <alloca.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -99,6 +100,7 @@ static inline char * STR_ERROR(int code, char * buf, size_t len) {
 #include <wchar.h>
 #include <jni.h>
 
+#define NO_JAWT
 #ifndef NO_JAWT
 #include <jawt.h>
 #include <jawt_md.h>
@@ -2500,7 +2502,7 @@ JNIEXPORT jchar JNICALL Java_com_sun_jna_Native_getChar
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_sun_jna_Native__1getPointer
-(JNIEnv *UNUSED_ENV(env), jclass UNUSED(cls), jlong addr)
+(JNIEnv *UNUSED_ENV(env), jclass UNUSED(cls), jlong volatile addr)
 {
     void *ptr = NULL;
     MEMCPY(env, &ptr, L2A(addr), sizeof(ptr));
@@ -3086,7 +3088,7 @@ Java_com_sun_jna_Native_getWindowHandle0(JNIEnv* UNUSED_JAWT(env), jclass UNUSED
       return -1;
     }
     if ((pJAWT_GetAWT = (void*)FIND_ENTRY(jawt_handle, METHOD_NAME)) == NULL) {
-      char msg[MSG_SIZE], buf[MSG_SIZE - 31 /* literal characters */ - sizeof(METHOD_NAME)];
+      char msg[MSG_SIZE], buf[MSG_SIZE];
       snprintf(msg, sizeof(msg), "Error looking up JAWT method %s: %s",
                METHOD_NAME, LOAD_ERROR(buf, sizeof(buf)));
       throwByName(env, EUnsatisfiedLink, msg);

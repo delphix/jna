@@ -57,7 +57,7 @@
   <!-- JNA library release version -->
   <property name="jna.major" value="4"/>
   <property name="jna.minor" value="5"/>
-  <property name="jna.revision" value="3"/>
+  <property name="jna.revision" value="2"/>
   <property name="jna.build" value="0"/> <!--${build.number}-->
   <condition property="version.suffix" value="" else="-SNAPSHOT">
     <or>
@@ -222,7 +222,7 @@
         <equals arg1="${vmopt.arch}" arg2="${vm.64}"/>
       </and>
     </condition>
-
+    <property name="build" value="build"/>
     <property name="classes" location="${build}/classes"/>
     <property name="eclipse.classes" location="build.eclipse/classes"/>
     <property name="test.classes" location="${build}/test-classes"/>
@@ -274,6 +274,9 @@
     <condition property="os.prefix" value="aix-${jre.arch}">
       <os name="AIX"/>
     </condition>
+    <condition property="os.prefix" value="hpux-${jre.arch}">
+      <os name="HP-UX"/>
+    </condition>
     <condition property="os.prefix" value="win32-${jre.arch}">
       <os family="windows"/>
     </condition>
@@ -288,7 +291,7 @@
       <os name="FreeBSD"/>
     </condition>
     <condition property="os.prefix" value="openbsd-${jre.arch}">
-	<os name="OpenBSD"/>
+	    <os name="OpenBSD"/>
     </condition>
     <condition property="os.prefix" value="netbsd-${jre.arch}">
       <os name="NetBSD"/>
@@ -451,6 +454,11 @@ processor=ppc;osname=aix,
 com/sun/jna/aix-ppc64/libjnidispatch.a;
 processor=ppc64;osname=aix,
 
+com/sun/jna/hp-ux-ia64n/libjnidispatch.so;
+processor=ia64n;osname=hp-ux;
+com/sun/jna/hp-ux-ia64w/libjnidispatch.so
+processor=ia64w;osname=hp-ux;
+
 com/sun/jna/linux-ppc/libjnidispatch.so;
 processor=ppc;osname=linux,
 com/sun/jna/linux-ppc64/libjnidispatch.so;
@@ -501,6 +509,12 @@ osname=macosx;processor=x86;processor=x86-64;processor=ppc
       <zipfileset src="${lib.native}/aix-ppc64.jar"
                   includes="*jnidispatch*"
                   prefix="com/sun/jna/aix-ppc64"/>
+      <zipfileset src="${lib.native}/hpux-IA64N.jar"
+                  includes="*jnidispatch*"
+                  prefix="com/sun/jna/hp-ux-ia64n/"/>
+      <zipfileset src="${lib.native}/hpux-IA64W.jar"
+                  includes="*jnidispatch*"
+                  prefix="com/sun/jna/hp-ux-ia64w/"/>
       <zipfileset src="${lib.native}/darwin.jar"
                   includes="*jnidispatch*"
                   prefix="com/sun/jna/darwin"/>
@@ -676,6 +690,9 @@ osname=macosx;processor=x86;processor=x86-64;processor=ppc
     <condition property="grep" value="ggrep">
       <os name="OpenBSD"/>
     </condition>
+    <condition property="grep.required" value="false" else="true">
+      <os name="HP-UX"/>
+    </condition>
     <property name="grep" value="grep"/>
     <condition property="grep.required" value="false" else="true">
       <os name="AIX"/>
@@ -689,7 +706,7 @@ osname=macosx;processor=x86;processor=x86-64;processor=ppc
       <fileset dir="${build.native}" includes="*.h"/>
     </apply>
     <!-- Clean up gcj javah output to match that of Sun's javah -->
-    <fixcrlf file="${md5.file}" eol="unix"/>
+    <!-- <fixcrlf file="${md5.file}" eol="unix"/> -->
     <replaceregexp match="^((.*\.h):JNIEXPORT[^(]+)( +\(.*)"
                    replace="\1&#xa;\2- \3&#xa;--"
 		   byline="true"
@@ -705,7 +722,7 @@ osname=macosx;processor=x86;processor=x86-64;processor=ppc
     <checksum property="md5" file="${md5.file}" />
     <condition property="jni.valid" value="true">
       <or>
-        <os name="AIX"/>
+        <os name="HP-UX"/>
         <equals arg1="${jni.md5}" arg2="${md5}" trim="true"/>
         <equals arg1="${jni.md5}" arg2=""/>
       </or>
@@ -746,6 +763,8 @@ osname=macosx;processor=x86;processor=x86-64;processor=ppc
     <copy file="${lib.native}/out-of-date.jar" tofile="${lib.native}/android-x86-64.jar" overwrite="true"/>
     <copy file="${lib.native}/out-of-date.jar" tofile="${lib.native}/android-mips.jar" overwrite="true"/>
     <copy file="${lib.native}/out-of-date.jar" tofile="${lib.native}/android-mips64.jar" overwrite="true"/>
+    <copy file="${lib.native}/out-of-date.jar" tofile="${lib.native}/hpux-IA64W.jar" overwrite="true"/>
+    <copy file="${lib.native}/out-of-date.jar" tofile="${lib.native}/hpux-IA64N.jar" overwrite="true"/>
     <delete failOnError="false" includeEmptyDirs="true">
       <fileset dir="${build.native}" includes="*.o,*jnidispatch*"/>
     </delete>
@@ -917,8 +936,10 @@ osname=macosx;processor=x86;processor=x86-64;processor=ppc
         <os name="NetBSD"/>
         <os name="SunOS"/>
         <os name="AIX"/>
+        <os name="HP-UX"/>
       </or>
     </condition>
+    
     <!-- Allow explicit override of make variables -->
     <condition property="make.OPTS" value="${EXTRA_MAKE_OPTS}" else="IGNORE=">
       <isset property="EXTRA_MAKE_OPTS"/>

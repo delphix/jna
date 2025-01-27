@@ -22,7 +22,8 @@
  * containing JNA, in file "AL2.0".
  */
 package com.sun.jna;
+
 interface Version {
-    String VERSION = "4.2.0";
-    String VERSION_NATIVE = "5.0.1";
+    String VERSION = "4.5.2-SNAPSHOT";
+    String VERSION_NATIVE = "5.2.2";
 }
